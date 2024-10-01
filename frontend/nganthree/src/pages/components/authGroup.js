@@ -13,6 +13,7 @@ function AuthGroup() {
   const [showErrorPopup, setShowErrorPopup] = useState(false); // State to control error popup
   const [errorMessage, setErrorMessage] = useState(''); // State for error message
   const navigate = useNavigate();
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -27,7 +28,7 @@ function AuthGroup() {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:7000/auth/login', loginData);
+      const response = await axios.post(`${backendUrl}/auth/login`, loginData);
       const token = response.data.token;
       localStorage.setItem('token', token);
       console.log('Login successful:', response.data);
@@ -42,7 +43,7 @@ function AuthGroup() {
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:7000/auth/register', registerData);
+      const response = await axios.post(`${backendUrl}/auth/register`, registerData);
       console.log('Register successful:', response.data);
       setShowPopup(true);
     } catch (err) {
