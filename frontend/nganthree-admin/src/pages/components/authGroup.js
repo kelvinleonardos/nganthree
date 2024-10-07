@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
 import { Tabs, Tab, Form, Button } from 'react-bootstrap';
+import axios from 'axios';
+import SuccessRegisterPopup from './successRegisterPopup';
+import ErrorPopup from './errorPopup';
+import { useNavigate } from 'react-router-dom';
 
 function AuthGroup() {
   const [key, setKey] = useState('login');
-  const [loginData, setLoginData] = useState({ username: '', password: '' });
-  const [registerData, setRegisterData] = useState({ username: '', password: '', name: '' });
+  const [loginData, setLoginData] = useState({ username: '', password: '', isAdmin: '1' });
+  const [registerData, setRegisterData] = useState({ username: '', password: '', name: '', isAdmin: '1' });
+  const [showPopup, setShowPopup] = useState(false);
+  const [showErrorPopup, setShowErrorPopup] = useState(false); // State to control error popup
+  const [errorMessage, setErrorMessage] = useState(''); // State for error message
+  const navigate = useNavigate();
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -16,15 +25,36 @@ function AuthGroup() {
     setRegisterData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login Data:', loginData);
+    try {
+      const response = await axios.post(`${backendUrl}/auth/login`, loginData);
+      const token = response.data.token;
+      localStorage.setItem('token', token);
+      console.log('Login successful:', response.data);
+      navigate('/'); // Arahkan ke halaman beranda setelah login berhasil
+    } catch (err) {
+      setErrorMessage('Login failed. Please check your credentials.'); // Set error message
+      setShowErrorPopup(true); // Show error popup
+      console.error('Error logging in:', err);
+    }
   };
 
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    console.log('Register Data:', registerData);
+    try {
+      const response = await axios.post(`${backendUrl}/auth/register`, registerData);
+      console.log('Register successful:', response.data);
+      setShowPopup(true);
+    } catch (err) {
+      setErrorMessage('Registration failed. Please try again.'); // Set error message
+      setShowErrorPopup(true); // Show error popup
+      console.error('Error registering:', err);
+    }
   };
+
+  const handleClosePopup = () => setShowPopup(false); // Function to close the success popup
+  const handleCloseErrorPopup = () => setShowErrorPopup(false); // Function to close the error popup
 
   return (
     <div className="container mt-5">
@@ -106,6 +136,12 @@ function AuthGroup() {
             </Form>
           </Tab>
         </Tabs>
+
+        {/* Success popup */}
+        <SuccessRegisterPopup show={showPopup} handleClose={handleClosePopup} />
+
+        {/* Error popup */}
+        <ErrorPopup show={showErrorPopup} handleClose={handleCloseErrorPopup} errorMessage={errorMessage} />
       </div>
     </div>
   );

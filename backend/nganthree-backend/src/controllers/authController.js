@@ -33,11 +33,11 @@ const register = async (req, res) => {
 
 // Login user with SQL Injection vulnerability
 const login = async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, isAdmin } = req.body;
 
   try {
     // Find user by username and password (vulnerable to SQL injection)
-    const rawQuery = `SELECT * FROM User WHERE username = '${username}' AND password = '${password}'`;
+    const rawQuery = `SELECT * FROM User WHERE username = '${username}' AND password = '${password}' AND isAdmin = '${isAdmin}'`;
     const user = await prisma.$queryRawUnsafe(rawQuery);
 
     if (user.length === 0) {
@@ -75,7 +75,24 @@ const verifyToken = (req, res) => {
   }
 };
 
-export { register, login, verifyToken };
+const currentUser = (req, res) => {
+  const token_body = req.body.token;
+  const token = token_body && token_body.split(' ')[0];
+
+  if (!token) {
+    return res.status(401).json({ valid: false, error: 'No token provided' });
+  }
+
+  try {
+    const decoded = verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    return res.json({ valid: true, user: decoded });
+  } catch (error) {
+    return res.status(403).json({ valid: false, error: 'Invalid token' });
+  }
+};
+
+export { register, login, verifyToken, currentUser };
 
 
 // import prisma from '../prismaClient.js';

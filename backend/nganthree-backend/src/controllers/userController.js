@@ -11,4 +11,14 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-export { getAllUsers };
+const getAdmins = async (req, res) => {
+  try {
+    // Unsafe raw SQL query
+    const users = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE isAdmin = 1');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+}; 
+
+export { getAllUsers, getAdmins };

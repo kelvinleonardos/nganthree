@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 function AuthGroup() {
   const [key, setKey] = useState('login');
-  const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [loginData, setLoginData] = useState({ username: '', password: '', isAdmin: '0' });
   const [registerData, setRegisterData] = useState({ username: '', password: '', name: '', isAdmin: '0' });
   const [showPopup, setShowPopup] = useState(false);
   const [showErrorPopup, setShowErrorPopup] = useState(false); // State to control error popup
