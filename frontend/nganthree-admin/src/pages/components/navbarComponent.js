@@ -5,7 +5,7 @@ function NavbarComponent({ darkMode, toggleDarkMode }) {
   return (
     <Navbar bg={darkMode ? 'dark' : 'light'} variant={darkMode ? 'dark' : 'light'}>
       <Container>
-        <Navbar.Brand href="#">React-Bootstrap</Navbar.Brand>
+        <Navbar.Brand href="#">Nganthree-Admin</Navbar.Brand>
         <Button variant={darkMode ? 'light' : 'dark'} onClick={toggleDarkMode}>
           {darkMode ? 'Light Mode' : 'Dark Mode'}
         </Button>
