@@ -98,7 +98,7 @@ function HomePage({ darkMode }) {
               {queues.map(queue => (
                 <tr key={queue.id}>
                   <td>{queue.queueNo}</td>
-                  <td>{queue.adminName}</td>
+                  <td>{queue.userName}</td>
                   <td>
                     <select
                       value={queue.statusId} // Menggunakan statusId sebagai value
