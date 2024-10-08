@@ -3,41 +3,44 @@ import axios from 'axios';
 
 function QueueForm({ onClose }) {
   const [admins, setAdmins] = useState([]);
-  const [queueNo, setQueueNo] = useState(''); // Initialize to an empty string
-  const [userId, setUserId] = useState('');  // Initialize to an empty string
-  const [adminId, setAdminId] = useState(''); // Initialize to an empty string
+  const [queueNo, setQueueNo] = useState(''); 
+  const [userId, setUserId] = useState('');  
+  const [adminId, setAdminId] = useState(''); 
 
-  // Fetch current user and queue number on mount
+  // Fetch admins and current user on mount
   useEffect(() => {
-    const fetchCurrentUserAndQueue = async () => {
+    const fetchCurrentUserAndAdmins = async () => {
       const token = localStorage.getItem('token');
-
       try {
-        // Fetch the current user by sending token in the body
-        const userResponse = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/auth/current-user`, 
-          { token }
-        );
+        const userResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/auth/current-user`, { token });
         setUserId(userResponse.data.user.userId || "");
 
         const adminResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/admins`);
         setAdmins(adminResponse.data);
-        console.log('Admins:', adminResponse.data);
-
-        // Fetch the current queue number
-        const queueResponse = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/queues/next-number`, 
-          { adminId: adminResponse.data[0]?.id } // Use optional chaining to avoid errors
-        );
-        setQueueNo(queueResponse.data.nextNumber || ""); // Ensure it's an empty string if undefined
 
       } catch (error) {
         console.error('Failed to fetch data:', error);
       }
     };
 
-    fetchCurrentUserAndQueue();
+    fetchCurrentUserAndAdmins();
   }, []);
+
+  // Fetch the queue number when the adminId changes
+  useEffect(() => {
+    if (adminId) {
+      const fetchQueueNumber = async () => {
+        try {
+          const queueResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/queues/next-number`, { adminId });
+          setQueueNo(queueResponse.data.nextNumber || ""); // Update queue number based on admin selection
+        } catch (error) {
+          console.error('Failed to fetch queue number:', error);
+        }
+      };
+
+      fetchQueueNumber();
+    }
+  }, [adminId]); // Trigger this effect whenever adminId changes
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,7 +74,7 @@ function QueueForm({ onClose }) {
                   className="form-control bg-dark text-light border-light"
                   id="queueNo"
                   value={queueNo}
-                  readOnly // Use readOnly instead of disabled if you want to display the value
+                  readOnly // Read-only because it's auto-populated based on admin
                 />
               </div>
               <div className="mb-3">
@@ -81,7 +84,7 @@ function QueueForm({ onClose }) {
                   className="form-control bg-dark text-light border-light"
                   id="userId"
                   value={userId}
-                  readOnly // Use readOnly instead of disabled if you want to display the value
+                  readOnly
                 />
               </div>
               <div className="mb-3">
@@ -90,7 +93,7 @@ function QueueForm({ onClose }) {
                   className="form-select bg-dark text-light border-light"
                   id="adminId"
                   value={adminId}
-                  onChange={(e) => setAdminId(e.target.value)}
+                  onChange={(e) => setAdminId(e.target.value)} // Update the selected admin
                   required
                 >
                   <option value="">Select Admin</option>
