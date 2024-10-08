@@ -89,7 +89,7 @@ function HomePage({ darkMode }) {
             <thead>
               <tr>
                 <th>Queue No</th>
-                <th>Admin</th>
+                <th>User</th>
                 <th>Status</th>
                 <th>Created At</th>
               </tr>
